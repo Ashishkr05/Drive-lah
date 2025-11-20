@@ -1,8 +1,41 @@
-import React, { useState } from "react";
+// src/components/Header.tsx
+import React, { useEffect, useState } from "react";
 import logo from "../assets/drive-lah-logo.png";
+import profileMobile from "../assets/profile-pic-mobile.png";
+import profileDesktop from "../assets/profile-pic-desktop.jpeg";
 
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const headerHeight = 50;
+    const onScroll = () => {
+      try {
+        const y = window.scrollY || window.pageYOffset || 0;
+        if (y > headerHeight) {
+          document.body.classList.add("content-over");
+        } else {
+          document.body.classList.remove("content-over");
+        }
+      } catch {}
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      try {
+        document.body.classList.remove("content-over");
+      } catch {}
+    };
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (open) document.body.classList.add("mobile-menu-open");
+      else document.body.classList.remove("mobile-menu-open");
+    } catch {}
+  }, [open]);
 
   return (
     <>
@@ -23,21 +56,18 @@ const Header: React.FC = () => {
           <span className="brand-title">Drive lah</span>
         </div>
 
+        <img className="mobile-profile" src={profileMobile} alt="profile" aria-hidden={false} />
+
         <div className="right-actions">
           <nav className="nav-desktop" aria-label="top navigation">
             <a href="#" className="link">Learn more</a>
             <a href="#" className="link">List your car</a>
             <a href="#" className="link">Inbox</a>
-            <img
-              className="profile-pic"
-              src="https://i.pravatar.cc/40?img=12"
-              alt="profile"
-            />
+            <img className="profile-pic" src={profileDesktop} alt="profile" />
           </nav>
         </div>
       </header>
 
-      {/* Mobile overlay + menu */}
       {open && (
         <div
           className="mobile-menu-overlay"
@@ -46,12 +76,9 @@ const Header: React.FC = () => {
           aria-label="Mobile menu"
           onClick={() => setOpen(false)}
         >
-          {/* stop clicks from closing when clicking inside the menu panel */}
           <nav
             className="nav-mobile"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               className="mobile-close"

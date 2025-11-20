@@ -1,0 +1,174 @@
+@use "./_variables.scss" as *;
+
+/* Plan grid */
+.plan-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(1, 1fr);
+  align-items: start;
+}
+
+/* Desktop: ensure each plan card has a healthy minimum width so features do not wrap */
+@media (min-width: 920px) {
+  .plan-grid {
+    /* fixed min using minmax so large screens still expand nicely */
+    grid-template-columns: repeat(3, minmax(320px, 1fr));
+    gap: 22px;
+    align-items: start;
+  }
+}
+
+/* Plan card base box */
+.plan-card {
+  background: $white;
+  border-radius: 10px;
+  border: 1px solid #e6e6e6;
+  padding: 8px 10px;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: box-shadow .18s ease, transform .12s ease, border-color .12s ease;
+  position: relative;
+  box-sizing: border-box;
+  z-index: 1320;
+  word-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* inner wrapper used by PlanCard JSX. Left-align on desktop to match target */
+.plan-card .plan-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* important: left aligned, not centered */
+  width: 100%;
+}
+
+/* title */
+.plan-card .plan-title {
+  color: $dl-teal;
+  font-weight: 800;
+  font-size: 17px;
+  margin-bottom: 8px;
+  letter-spacing: 0.1px;
+  text-align: left;
+}
+
+/* features
+   - increase max-width to allow longer lines (avoid breaks)
+   - left aligned, reasonable line-height
+*/
+.plan-card .plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+  color: $feature-text;
+  font-size: 15px;
+  line-height: 1.55;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 380px; /* larger width to reduce wrapping */
+  text-align: left;
+}
+
+/* each feature row */
+.plan-feature-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* icon for features */
+.plan-feature-item .feature-icon {
+  color: $dl-teal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+/* feature text */
+.plan-feature-item .feature-text {
+  color: $feature-text;
+  font-size: 15px;
+  line-height: 1.45;
+  word-break: normal; /* avoid forced break */
+}
+
+/* footer (price) */
+.plan-card .plan-footer {
+  margin-top: 12px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start; /* left aligned per target */
+}
+.plan-card .plan-price {
+  color: $dl-teal;
+  font-weight: 800;
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+/* selected state */
+.plan-card.selected {
+  border: 2px solid rgba(0,157,166,0.98);
+  background: rgba(0,157,166,0.04);
+  box-shadow: 0 6px 18px rgba(8,32,34,0.06);
+  transform: translateY(-2px);
+}
+.plan-card:hover, .plan-card:focus {
+  box-shadow: 0 8px 22px rgba(8,32,34,0.06);
+  transform: translateY(-2px);
+  outline: none;
+}
+.plan-card:focus { box-shadow: 0 0 0 4px rgba(0,157,166,0.06); }
+
+/* Addons and other boxes - keep explicit z-index so they sit above translucent overlay */
+.addons-row { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 920px) { .addons-row { grid-template-columns: repeat(2, 1fr); } }
+
+.addon-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e7e7e7;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: $white;
+  position: relative;
+  z-index: 1320;
+}
+.addon-box .addon-coming {
+  margin-right: -105px;
+}
+.addon-box .addon-label {
+  flex-grow: 1;
+}
+.addon-box.disabled { opacity: 0.7; cursor: not-allowed; }
+.addon-label { font-size: 15px; color: #006c71;}
+.addon-coming { font-size: 12px; background: #f4f4f4; padding: 5px 8px; border-radius: 4px; color: #585757; margin-right: 8px; display: inline-block; margin-top: -40px; }
+.circle { width: 18px; height: 18px; border-radius: 50%; border: 2px solid $dl-teal; display: inline-block; box-sizing: border-box; }
+.circle.checked { background: $dl-teal; border-color: $dl-teal; }
+
+/* card visual (payment) */
+.card-visual { border-radius: 6px; background: $white; border: 1px solid #eee; padding: 12px; position: relative; z-index: 1320; }
+.card-mock { font-size: 14px; color: $muted-alt; padding: 8px 0; }
+.help-note { color: #666; margin-top: 8px; }
+
+/* device box */
+.device-card { border: 1px solid #e8e8e8; border-radius: 8px; padding: 12px; margin-bottom: 12px; background: $white; position: relative; z-index: 1320; }
+.device-row { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+.device-label { width: 120px; color: #666; font-size: 14px; }
+.serial-input { flex: 1; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; }
+
+/* responsive reductions for mobile */
+@media (max-width: 919px) {
+  .plan-card { padding: 14px; min-height: auto; }
+  .plan-card .plan-features { max-width: 100%; }
+  .plan-card .plan-title { font-size: 18px; text-align: left; }
+  .plan-card .plan-price { font-size: 15px; }
+}

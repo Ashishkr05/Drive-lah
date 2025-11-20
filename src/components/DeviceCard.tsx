@@ -1,64 +1,48 @@
+// src/components/DeviceCard.tsx
 import React from "react";
 
 interface Props {
-  index: number;
-  data?: {
-    id?: string;
-    type?: string;
-    serial?: string;
-    bringingOwn?: boolean;
-    imageData?: string;
-  };
-  onChange: (index: number, patch: Partial<any>) => void;
-  onRemove?: (index: number) => void;
+  id: string;
+  deviceType: string;
+  serialNumber?: string;
+  imageUrl?: string;
+  onSelectImage?: (id: string, file?: File) => void;
+  onToggleOwn?: (id: string) => void;
+  ownDevice?: boolean;
 }
 
-const DeviceCard: React.FC<Props> = ({ index, data, onChange, onRemove }) => {
-  const fileRef = React.useRef<HTMLInputElement | null>(null);
-
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      onChange(index, { imageData: reader.result as string });
-    };
-    reader.readAsDataURL(f);
-  }
-
+const DeviceCard: React.FC<Props> = ({ id, deviceType, serialNumber, imageUrl, onSelectImage, onToggleOwn, ownDevice }) => {
   return (
-    <div className="device-card" role="group" aria-label={`Device ${index + 1}`}>
-      <h4>Device {index + 1}</h4>
-
-      <label>Device type</label>
-      <select value={data?.type || "Primary GPS"} onChange={(e) => onChange(index, { type: e.target.value })}>
-        <option>Primary GPS</option>
-        <option>Secondary GPS</option>
-      </select>
-
-      <label>Serial number</label>
-      <input
-        value={data?.serial || ""}
-        placeholder="Enter serial number"
-        onChange={(e) => onChange(index, { serial: e.target.value })}
-      />
-
-      <label style={{ marginTop: 10 }}>
-        <input type="checkbox" checked={!!data?.bringingOwn} onChange={() => onChange(index, { bringingOwn: !data?.bringingOwn })} />
-        Bringing your own device?
-      </label>
-
-      <div style={{ marginTop: 10 }}>
-        <div style={{ marginBottom: 6 }}>Upload an image</div>
-        <input type="file" accept="image/*" ref={fileRef} onChange={handleFile} />
-        {data?.imageData && <img src={data.imageData} alt={`device-${index}`} style={{ marginTop: 8, maxWidth: "100%", borderRadius: 6 }} />}
+    <div className="device-card">
+      <div className="device-row">
+        <label className="device-label">Device type</label>
+        <div className="device-type">{deviceType}</div>
       </div>
 
-      {onRemove && (
-        <div style={{ marginTop: 8 }}>
-          <button onClick={() => onRemove(index)}>Remove</button>
-        </div>
-      )}
+      <div className="device-row">
+        <label className="device-label">Serial number</label>
+        <input className="serial-input" placeholder="Enter the serial number of the device" defaultValue={serialNumber} />
+      </div>
+
+      <div className="device-row">
+        <label className="device-label">Bringing your own device?</label>
+        <label className="switch">
+          <input type="checkbox" checked={!!ownDevice} onChange={() => onToggleOwn?.(id)} />
+          <span className="slider" />
+        </label>
+      </div>
+
+      <div className="device-row">
+        <label className="device-label">Upload image</label>
+        <label className="upload-box">
+          {imageUrl ? (
+            <img src={imageUrl} alt="device" className="device-preview" />
+          ) : (
+            <div className="upload-placeholder">Click to upload</div>
+          )}
+          <input type="file" accept="image/*" onChange={(e) => onSelectImage?.(id, e.target.files?.[0])} />
+        </label>
+      </div>
     </div>
   );
 };

@@ -1,25 +1,59 @@
+// src/components/AddOnCheckbox.tsx
 import React from "react";
 
-interface Props {
+type Props = {
   id: string;
   label: string;
-  checked: boolean;
+  checked?: boolean;
   disabled?: boolean;
+  comingSoon?: boolean;
   onToggle: (id: string) => void;
-}
+};
 
-const AddOnCheckbox: React.FC<Props> = ({ id, label, checked, disabled, onToggle }) => {
+const AddOnCheckbox: React.FC<Props> = ({ id, label, checked, disabled, comingSoon, onToggle }) => {
   return (
-    <label className="addon" aria-disabled={disabled}>
-      <input
-        type="checkbox"
-        id={id}
-        checked={checked}
-        disabled={disabled}
-        onChange={() => onToggle(id)}
-      />
-      <span className="label">{label}</span>
-    </label>
+    <button
+      type="button"
+      className={`addon-box${disabled ? " disabled" : ""}`}
+      onClick={() => {
+        if (!disabled) onToggle(id);
+      }}
+      aria-pressed={!!checked}
+      aria-disabled={!!disabled}
+      onKeyDown={(e) => {
+        if ((e.key === "Enter" || e.key === " ") && !disabled) {
+          e.preventDefault();
+          onToggle(id);
+        }
+      }}
+    >
+      <div
+        className="addon-left"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+        }}
+      >
+        {comingSoon && (
+          <span className="addon-coming">Coming soon</span>
+        )}
+
+        <div
+          className="addon-label"
+          style={{
+            marginLeft: comingSoon ? "12px" : "0px",  // ⭐ SHIFT LEFT
+          }}
+        >
+          {label}
+        </div>
+      </div>
+
+
+      <div aria-hidden style={{ display: "flex", alignItems: "center" }}>
+        <span className={`circle${checked ? " checked" : ""}`} />
+      </div>
+    </button>
   );
 };
 

@@ -1,0 +1,96 @@
+@use "./_variables.scss" as *;
+
+.left-steps {
+  width: 210px;
+  padding-left: 28px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.left-steps ul {
+  list-style: none;
+  padding: 12px 0;
+  margin: 0;
+}
+
+.left-steps ul li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 15px;
+  color: #0b6b72;
+  padding: 6px 0;
+}
+
+.left-steps ul li .step-text {
+  margin-left: 6px;
+  flex: 1 1 auto;
+  padding-right: 8px;
+  color: #0b6b72;
+}
+
+.left-steps ul li.upcoming .step-text {
+  color: #cfdede;
+}
+
+.left-steps ul li.active .step-text {
+  color: #009da6;
+  font-weight: 700;
+}
+
+.left-steps ul li.active::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  width: 4px;
+  height: 36px;
+  background: #009da6;
+  border-radius: 3px;
+  top: 6px;
+}
+
+.left-steps .step-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 22px;
+  box-sizing: border-box;
+}
+
+/* COMPLETED */
+.left-steps ul li.done .step-check {
+  background: #009da6;
+  border: 2px solid #009da6;
+}
+.left-steps ul li.done .step-check svg {
+  width: 12px;
+  height: 12px;
+  stroke: #ffffff;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* UPCOMING - do NOT show a right-side circle for upcoming items */
+.left-steps ul li.upcoming .step-check {
+  display: none;
+}
+
+/* ACTIVE - no right-side circle for active row */
+.left-steps ul li.active .step-check {
+  display: none;
+}
+
+/* Prevent any generic .circle from other components showing in the sidebar */
+.left-steps .circle {
+  display: none !important;
+}
+
+.left-steps ul li + li {
+  margin-top: 2px;
+}

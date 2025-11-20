@@ -1,0 +1,166 @@
+@use "./_variables.scss" as *;
+
+/* overall page container */
+.subscription-wrap {
+  display: flex;
+  gap: 28px;
+  max-width: $max-width;
+  margin: 22px auto;
+  padding: 0 18px;
+}
+
+/* left steps (sidebar) */
+.left-steps {
+  width: 210px;
+  padding-left: 28px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.left-steps ul {
+  list-style: none;
+  padding: 12px 0;
+  margin: 0;
+}
+.left-steps ul li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 15px;
+  color: #0b6b72;
+  padding: 6px 0;
+}
+.left-steps ul li .step-text {
+  margin-left: 6px;
+  flex: 1 1 auto;
+  padding-right: 8px;
+  color: #0b6b72;
+}
+.left-steps ul li.upcoming .step-text { color: #bfcfcf; }
+.left-steps ul li.upcoming .step-check {
+  border: 2px solid rgba(0,157,166,0.22);
+  background: #fff;
+}
+.left-steps ul li.done .step-check {
+  background: $dl-teal;
+  border: 2px solid $dl-teal;
+}
+.left-steps ul li.active { font-weight: 700; color: $primary; }
+.left-steps ul li.active .step-text { color: $primary; }
+.left-steps ul li.active::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  width: 4px;
+  height: 36px;
+  background: $primary;
+  border-radius: 3px;
+  top: 6px;
+}
+.left-steps ul li + li { margin-top: 2px; }
+
+/* right-content */
+.right-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  transition: background 160ms ease;
+}
+
+/* page card wrapper stays transparent so headings float over - boxes remain opaque */
+.page-card {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  overflow: visible;
+  max-width: 760px;
+  margin: 0;
+}
+.card-body { padding: 20px; background: transparent; }
+
+/* headings */
+.section-heading {
+  color: $primary;
+  font-size: 22px;
+  margin: 6px 0 8px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.sub-note {
+  color: $muted;
+  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.small-heading {
+  color: #3b5b5b;
+  font-size: 16px;
+  margin-top: 6px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+/* divider */
+.divider { height: 1px; background: $divider; margin: 16px 0; }
+
+/* CTA zones */
+.desktop-cta {
+  position: fixed;
+  right: 28px;
+  bottom: 24px;
+  display: none;
+  z-index: 1400;
+  pointer-events: auto;
+}
+@media (min-width: 920px) {
+  .desktop-cta { display: block; }
+  .next-btn-desktop {
+    background: $yellow-strong;
+    padding: 12px 44px;
+    border-radius: 6px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    border: none;
+    font-weight: 800;
+    color: #083233;
+  }
+}
+
+/* mobile bottom CTA */
+.bottom-cta-mobile { display: none; }
+@media (max-width: 820px) {
+  .bottom-cta-mobile {
+    display: flex;
+    position: fixed;
+    left: 0; right: 0; bottom: 12px;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1400;
+  }
+  .bottom-cta-mobile .next-btn-mobile {
+    pointer-events: auto;
+    background: $yellow-strong;
+    padding: 12px 44px;
+    border-radius: 6px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    border: none;
+    font-weight: 800;
+    color: #083233;
+  }
+}
+
+/* translucent backdrop when content overlays header: page body toggled class controls this */
+body.content-over .right-content {
+  background: rgba(255,255,255,0.18);
+  z-index: 1290;
+  position: relative;
+}
+body.content-over .page-card { z-index: 1295; position: relative; }
+body.content-over .sub-note,
+body.content-over .small-heading,
+body.content-over .section-heading,
+body.content-over .learn-more {
+  position: relative;
+  z-index: 1310;
+}

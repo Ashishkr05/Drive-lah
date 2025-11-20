@@ -1,53 +1,83 @@
-import React from "react";
+// src/pages/DevicePage.tsx
+import React, { useState, useEffect } from "react";
 import DeviceCard from "../components/DeviceCard";
 
+const STORAGE_KEY_DEVICES = "drive_listing_devices_v1";
+
+interface DeviceState {
+  id: string;
+  deviceType: string;
+  serial?: string;
+  image?: string; // data URL
+  own?: boolean;
+}
+
+function loadDevices(): DeviceState[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_DEVICES);
+    if (!raw) return [
+      { id: "d1", deviceType: "Primary GPS", serial: "", image: undefined, own: false },
+      { id: "d2", deviceType: "Secondary GPS", serial: "", image: undefined, own: false },
+    ];
+    return JSON.parse(raw) as DeviceState[];
+  } catch {
+    return [
+      { id: "d1", deviceType: "Primary GPS", serial: "", image: undefined, own: false },
+      { id: "d2", deviceType: "Secondary GPS", serial: "", image: undefined, own: false },
+    ];
+  }
+}
+
+function saveDevices(devs: DeviceState[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY_DEVICES, JSON.stringify(devs));
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
 const DevicePage: React.FC = () => {
-  const [devices, setDevices] = React.useState<any[]>(
-    JSON.parse(localStorage.getItem("devicesDraft") || "null") || [
-      { id: "d1", type: "Primary GPS", serial: "", bringingOwn: false, imageData: "" },
-    ]
-  );
+  const [devices, setDevices] = useState<DeviceState[]>(() => loadDevices());
 
-  function handleChange(idx: number, patch: Partial<any>) {
-    setDevices((prev) => {
-      const next = [...prev];
-      next[idx] = { ...next[idx], ...patch };
-      localStorage.setItem("devicesDraft", JSON.stringify(next));
-      return next;
-    });
+  useEffect(() => {
+    saveDevices(devices);
+  }, [devices]);
+
+  function handleImageSelect(id: string, file?: File) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, image: reader.result as string } : d)));
+    };
+    reader.readAsDataURL(file);
   }
 
-  function addDevice() {
-    setDevices((p) => {
-      const next = [...p, { id: `d${p.length + 1}`, type: "Secondary GPS", serial: "", bringingOwn: false }];
-      localStorage.setItem("devicesDraft", JSON.stringify(next));
-      return next;
-    });
-  }
-
-  function removeDevice(idx: number) {
-    setDevices((p) => {
-      const next = p.filter((_, i) => i !== idx);
-      localStorage.setItem("devicesDraft", JSON.stringify(next));
-      return next;
-    });
+  function toggleOwn(id: string) {
+    setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, own: !d.own } : d)));
   }
 
   return (
-    <section style={{ padding: 12 }}>
-      <h2 className="section-title">Device management</h2>
-      <p className="note">Add any devices installed in your vehicle. Images are stored locally as DataURLs (be mindful of size).</p>
+    <section className="device-wrap">
+      <div className="card page-card">
+        <div className="card-body">
+          <h2 className="section-heading">Device management</h2>
+          <p className="sub-note">Add details of the device, if any already installed on your car. If none, then continue to next step.</p>
 
-      <div className="device-grid">
-        {devices.map((d, i) => (
-          <DeviceCard key={d.id} index={i} data={d} onChange={handleChange} onRemove={removeDevice} />
-        ))}
-      </div>
-
-      <div style={{ marginTop: 16 }}>
-        <button onClick={addDevice} style={{ padding: "10px 14px", borderRadius: 8, background: "#eef6f6", border: "1px solid #dfecec" }}>
-          Add device
-        </button>
+          <div className="devices-list">
+            {devices.map((d) => (
+              <DeviceCard
+                key={d.id}
+                id={d.id}
+                deviceType={d.deviceType}
+                serialNumber={d.serial}
+                imageUrl={d.image}
+                onSelectImage={handleImageSelect}
+                onToggleOwn={toggleOwn}
+                ownDevice={!!d.own}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
