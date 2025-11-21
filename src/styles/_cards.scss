@@ -1,5 +1,12 @@
 @use "./_variables.scss" as *;
 
+/* =========================
+   Cards & Subscription styling
+   Complete _cards.scss with added card-input single-box UI,
+   subtle animations for collapsible blocks, and small layout fixes.
+   Do NOT change application flow — purely presentational.
+   ========================= */
+
 /* Plan grid */
 .plan-grid {
   display: grid;
@@ -36,7 +43,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* inner wrapper used by PlanCard JSX. Left-align on desktop to match target */
+/* inner wrapper used by PlanCard JSX. Left-align on desktop. */
 .plan-card .plan-inner {
   display: flex;
   flex-direction: column;
@@ -127,7 +134,9 @@
 }
 .plan-card:focus { box-shadow: 0 0 0 4px rgba(0,157,166,0.06); }
 
-/* Addons and other boxes - keep explicit z-index so they sit above translucent overlay */
+/* =========================
+   Addons section
+   ========================= */
 .addons-row { display: grid; gap: 12px; grid-template-columns: 1fr; }
 @media (min-width: 920px) { .addons-row { grid-template-columns: repeat(2, 1fr); } }
 
@@ -142,33 +151,181 @@
   position: relative;
   z-index: 1320;
 }
-.addon-box .addon-coming {
-  margin-right: -105px;
+
+/* Make "coming soon" label visually match target and positioned left of text.
+   Avoid absolute negative offsets that break layout; instead use a small inline pill
+   and push the label left visually by reducing its right-margin where required. */
+.addon-box .addon-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
+.addon-box .addon-coming {
+  font-size: 12px;
+  background: #f4f4f4;
+  padding: 5px 8px;
+  border-radius: 4px;
+  color: #585757;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+/* label grows and can ellipsize if too long */
 .addon-box .addon-label {
   flex-grow: 1;
+  min-width: 0;
+  color: #006c71;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+/* disabled state */
 .addon-box.disabled { opacity: 0.7; cursor: not-allowed; }
-.addon-label { font-size: 15px; color: #006c71;}
-.addon-coming { font-size: 12px; background: #f4f4f4; padding: 5px 8px; border-radius: 4px; color: #585757; margin-right: 8px; display: inline-block; margin-top: -40px; }
+.addon-label { font-size: 15px; color: #006c71; }
+.addon-coming { margin-right: 8px; }
+
+/* radio circle */
 .circle { width: 18px; height: 18px; border-radius: 50%; border: 2px solid $dl-teal; display: inline-block; box-sizing: border-box; }
 .circle.checked { background: $dl-teal; border-color: $dl-teal; }
 
-/* card visual (payment) */
+/* =========================
+   Card visual (payment)
+   - provides a single-line single-border input presentation
+   - implements small "help-note" text style
+   ========================= */
 .card-visual { border-radius: 6px; background: $white; border: 1px solid #eee; padding: 12px; position: relative; z-index: 1320; }
-.card-mock { font-size: 14px; color: $muted-alt; padding: 8px 0; }
-.help-note { color: #666; margin-top: 8px; }
 
-/* device box */
+/* New single unified card-input box: place inside .card-visual */
+.card-input-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  padding: 10px 12px;
+  max-width: 680px;    /* adjust to control overall width; change to ~420px to make "half" width */
+  box-sizing: border-box;
+  background: $white;
+}
+
+/* icon on left */
+.card-input-box .card-input-icon {
+  color: #bfcfcf;
+  display: flex;
+  align-items: center;
+  margin-right: 6px;
+  flex: 0 0 auto;
+}
+
+/* base input - visually transparent borders because the outer box forms the border */
+.card-input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1a4a4a;
+  background: transparent;
+}
+
+/* large number input expands */
+.card-input.card-number {
+  flex: 1 1 45%;
+  min-width: 180px;
+  padding: 6px 4px;
+  caret-color: $dl-teal;
+}
+
+/* small inputs live in compact containers */
+.card-input-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 58px;
+  margin-left: 6px;
+}
+.card-input-mini .card-input {
+  width: 100%;
+  padding: 6px 4px;
+}
+
+/* small subtle separators (visual only) - use box-shadow to hint a divider without altering layout */
+.card-input-box .card-input-mini + .card-input-mini {
+  margin-left: 8px;
+}
+
+/* helper note style */
+.card-visual .help-note {
+  margin-top: 10px;
+  color: #666;
+  font-size: 13px;
+}
+
+/* =========================
+   Collapsible animation (curtain-like)
+   - keeps content in DOM and animates height + opacity for smooth effect
+   ========================= */
+.collapsible {
+  overflow: hidden;
+  transition: max-height 260ms cubic-bezier(.2,.9,.3,1), opacity 220ms ease, transform 260ms ease;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.collapsible.open {
+  opacity: 1;
+  transform: translateY(0);
+  /* large enough max-height to accommodate the content; keeps animation smooth */
+  max-height: 420px;
+}
+.collapsible .collapsible-inner {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* =========================
+   Device / other boxes (unchanged)
+   ========================= */
 .device-card { border: 1px solid #e8e8e8; border-radius: 8px; padding: 12px; margin-bottom: 12px; background: $white; position: relative; z-index: 1320; }
 .device-row { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
 .device-label { width: 120px; color: #666; font-size: 14px; }
 .serial-input { flex: 1; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; }
 
-/* responsive reductions for mobile */
+/* =========================
+   Responsive reductions for mobile
+   ========================= */
 @media (max-width: 919px) {
   .plan-card { padding: 14px; min-height: auto; }
   .plan-card .plan-features { max-width: 100%; }
   .plan-card .plan-title { font-size: 18px; text-align: left; }
   .plan-card .plan-price { font-size: 15px; }
+
+  /* Mobile card-input box: make it full width and stack small inputs with right margin */
+  .card-input-box {
+    max-width: 100%;
+    padding: 10px;
+    gap: 8px;
+  }
+  .card-input.card-number { min-width: 120px; }
+  .card-input-mini { flex: 0 0 48px; }
+}
+
+/* =========================
+   Small helper tweaks for addon pill placement (prevents overlap) and accessibility
+   ========================= */
+.addon-coming {
+  background: #f4f4f4;
+  color: #6b6b6b;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+
+/* ensure that addon-left content doesn't overflow and label ellipsizes correctly */
+.addon-left .addon-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -24,3 +24,7 @@ $font-base: 16px;
 $font-sm: 14px;
 $font-lg: 18px;
 $header-height: 50px;
+$muted-text: $feature-text !default;    /* used for small labels */
+$primary-dark: $primary !default;       /* accent / darker primary */
+$input-border: $border-muted !default;  /* input border color */
+$input-bg: $white !default; 

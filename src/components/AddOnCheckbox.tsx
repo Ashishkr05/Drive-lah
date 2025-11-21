@@ -27,28 +27,10 @@ const AddOnCheckbox: React.FC<Props> = ({ id, label, checked, disabled, comingSo
         }
       }}
     >
-      <div
-        className="addon-left"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        {comingSoon && (
-          <span className="addon-coming">Coming soon</span>
-        )}
-
-        <div
-          className="addon-label"
-          style={{
-            marginLeft: comingSoon ? "12px" : "0px",  // ⭐ SHIFT LEFT
-          }}
-        >
-          {label}
-        </div>
+      <div className="addon-left" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {comingSoon && <span className="addon-coming">Coming soon</span>}
+        <div className="addon-label">{label}</div>
       </div>
-
 
       <div aria-hidden style={{ display: "flex", alignItems: "center" }}>
         <span className={`circle${checked ? " checked" : ""}`} />
