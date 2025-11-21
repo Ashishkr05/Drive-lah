@@ -7,6 +7,7 @@
 
 /* import steps last so it overrides generic rules */
 @use "./_steps.scss" as *;
+@use "./_device.scss" as *;
 
 /* global reset & accessibility helpers that are shared */
 * { box-sizing: border-box; }

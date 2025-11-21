@@ -2,100 +2,185 @@
 import React, { useEffect, useState, useCallback } from "react";
 import LeftSteps from "../components/LeftSteps";
 import MobileDropdown from "../components/MobileDropdown";
-import DeviceCard from "../components/DeviceCard"; // existing component you mentioned
-import type { DeviceState as DeviceStateType } from "./types"; // optional, if you keep types elsewhere
-
-type OnNavigateFn = (target: "subscription" | "device" | "easy-access") => void;
 
 const STORAGE_KEY_DEVICES = "drive_listing_devices_v1";
+const ROOT_KEY = "drive_listing_state_v1";
+
+/* optional local placeholder image (safe fallback for visual testing) */
+const TEST_IMAGE_URL = "/mnt/data/283211d6-0565-4a6e-8cb0-3ba75474cb23.png";
+
+/** small size guard for storing images in localStorage (data URL).
+ *  If file is larger than this, user is asked to choose smaller file.
+ *  Adjust as you prefer (300*1024 = 300KB).
+ */
+const IMAGE_SIZE_LIMIT_BYTES = 300 * 1024; // 300 KB
 
 export type DeviceState = {
   id: string;
   deviceType: string;
   serial?: string;
-  image?: string | null; // data URL
+  image?: string | null;
   own?: boolean;
 };
 
 interface Props {
-  onNavigate?: OnNavigateFn;
+  onNavigate?: (target: "subscription" | "device" | "easy-access") => void;
 }
 
-function defaultDevices(): DeviceState[] {
-  return [
-    { id: "d1", deviceType: "Primary GPS", serial: "", image: null, own: false },
-    { id: "d2", deviceType: "Secondary GPS", serial: "", image: null, own: false },
-  ];
-}
+/* Default device slots */
+const DEFAULT_SLOTS: DeviceState[] = [
+  { id: "d1", deviceType: "Primary GPS", serial: "", image: null, own: false },
+  { id: "d2", deviceType: "Secondary GPS", serial: "", image: null, own: false },
+  { id: "d3", deviceType: "Drive mate Go", serial: "", image: null, own: false },
+  { id: "d4", deviceType: "Lockbox", serial: "", image: null, own: false },
+];
 
-function loadDevices(): DeviceState[] {
+/* Safe JSON parse helper */
+function safeParse<T = any>(raw: string | null): T | null {
+  if (!raw) return null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_DEVICES);
-    if (!raw) return defaultDevices();
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return defaultDevices();
-    return parsed.map((p: any, idx: number) => ({
-      id: String(p.id ?? `d${idx + 1}`),
-      deviceType: String(p.deviceType ?? (idx === 0 ? "Primary GPS" : "Secondary GPS")),
-      serial: typeof p.serial === "string" ? p.serial : "",
-      image: p.image ?? null,
-      own: !!p.own,
-    }));
+    return JSON.parse(raw) as T;
   } catch {
-    return defaultDevices();
+    return null;
   }
 }
 
+/* Load persisted device list from device key; map onto DEFAULT_SLOTS for stable ordering */
+function loadDevices(): DeviceState[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_DEVICES);
+    if (!raw) return DEFAULT_SLOTS;
+    const parsed = safeParse<any>(raw);
+    if (!Array.isArray(parsed)) return DEFAULT_SLOTS;
+
+    return DEFAULT_SLOTS.map((slot, idx) => {
+      const p = parsed[idx] ?? parsed.find((x: any) => String(x?.id) === slot.id) ?? {};
+      return {
+        id: String(p.id ?? slot.id),
+        deviceType: String(p.deviceType ?? slot.deviceType),
+        serial: typeof p.serial === "string" ? p.serial : "",
+        image: p.image ?? null,
+        own: !!p.own,
+      } as DeviceState;
+    });
+  } catch {
+    return DEFAULT_SLOTS;
+  }
+}
+
+/* Save to device-specific key */
 function saveDevices(devs: DeviceState[]) {
   try {
     localStorage.setItem(STORAGE_KEY_DEVICES, JSON.stringify(devs));
-  } catch {
-    /* ignore storage errors */
+  } catch (e) {
+    // keep silent but log during dev
+    // console.warn("saveDevices failed", e);
+  }
+}
+
+/**
+ * Merge devices into the application root payload (drive_listing_state_v1).
+ * If markCompleted is true, ensure "Device" appears in completedSteps.
+ *
+ * This function merges non-destructively: it keeps existing root properties
+ * and writes/overwrites `devices` + `completedSteps` + `timestamp`.
+ */
+function mergeDevicesIntoRoot(devs: DeviceState[], markCompleted = false) {
+  try {
+    const rawRoot = localStorage.getItem(ROOT_KEY);
+    const root = safeParse<any>(rawRoot) || {};
+
+    const existingCompleted: string[] =
+      (Array.isArray(root.completedSteps) && root.completedSteps) ||
+      (Array.isArray(root.subscription?.completedSteps) && root.subscription.completedSteps) ||
+      [];
+
+    const nextCompleted = markCompleted
+      ? Array.from(new Set([...existingCompleted, "Device"]))
+      : existingCompleted;
+
+    const nextRoot = {
+      ...root,
+      devices: devs,
+      completedSteps: nextCompleted,
+      timestamp: Date.now(),
+    };
+
+    localStorage.setItem(ROOT_KEY, JSON.stringify(nextRoot));
+  } catch (e) {
+    // console.warn("mergeDevicesIntoRoot failed", e);
   }
 }
 
 const DevicePage: React.FC<Props> = ({ onNavigate }) => {
   const [devices, setDevices] = useState<DeviceState[]>(() => loadDevices());
+  const [liveMessage, setLiveMessage] = useState<string>("");
 
-  // persist whenever devices change
+  // persist devices to device key AND keep root in-sync (non-destructive)
   useEffect(() => {
     saveDevices(devices);
+    mergeDevicesIntoRoot(devices, false);
   }, [devices]);
 
-  // handlers
-  const handleSerialChange = useCallback((id: string, value: string) => {
-    setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, serial: value } : d)));
+  const updateDevice = useCallback((id: string, patch: Partial<DeviceState>) => {
+    setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d)));
   }, []);
 
   const handleToggleOwn = useCallback((id: string) => {
     setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, own: !d.own } : d)));
   }, []);
 
-  const handleImageSelect = useCallback((id: string, file?: File) => {
+  const handleDeviceTypeChange = useCallback((id: string, value: string) => {
+    updateDevice(id, { deviceType: value });
+  }, [updateDevice]);
+
+  const handleSerialChange = useCallback((id: string, value: string) => {
+    updateDevice(id, { serial: value });
+  }, [updateDevice]);
+
+  const handleFileSelect = useCallback((id: string, file?: File) => {
     if (!file) return;
+
+    if (file.size > IMAGE_SIZE_LIMIT_BYTES) {
+      window.alert(`Image too large. Please choose an image smaller than ${Math.round(IMAGE_SIZE_LIMIT_BYTES / 1024)} KB.`);
+      setLiveMessage("Image rejected: file too large.");
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
-      setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, image: dataUrl } : d)));
+      updateDevice(id, { image: dataUrl });
+      setLiveMessage("Image uploaded.");
+    };
+    reader.onerror = () => {
+      // handle read errors gracefully
+      window.alert("Failed to read the file. Please try another image.");
+      setLiveMessage("Image upload failed.");
     };
     reader.readAsDataURL(file);
-  }, []);
+  }, [updateDevice]);
 
   const handleClearImage = useCallback((id: string) => {
-    setDevices((prev) => prev.map((d) => (d.id === id ? { ...d, image: null } : d)));
-  }, []);
+    updateDevice(id, { image: null });
+    setLiveMessage("Image removed.");
+  }, [updateDevice]);
 
-  // Next CTA: persist (already persisted on change) and navigate via prop
   const handleNext = useCallback(() => {
-    // ensure latest saved
+    // persist devices + merge into root and mark Device step completed
     saveDevices(devices);
-    if (typeof onNavigate === "function") onNavigate("easy-access");
+    mergeDevicesIntoRoot(devices, true);
+
+    if (typeof onNavigate === "function") {
+      onNavigate("easy-access");
+    } else {
+      // If parent navigation not provided, you may integrate router navigate here
+      // leaving intentionally blank to preserve your existing flow.
+    }
   }, [devices, onNavigate]);
 
-  // Render device rows - we reuse classnames from subscription layout to keep pixel parity
   return (
     <section className="subscription-wrap device-wrap" aria-labelledby="device-heading">
-      {/* Left steps — same completed list as subscription to show ticks on sidebar */}
       <LeftSteps
         active="Device"
         completed={[
@@ -112,109 +197,149 @@ const DevicePage: React.FC<Props> = ({ onNavigate }) => {
       />
 
       <div className="right-content">
-        {/* mobile dropdown shows "Subscription" in subscription page; for device page show "Device" */}
         <MobileDropdown value="Device" onOpen={() => {}} />
 
         <div className="card page-card" role="region" aria-labelledby="device-heading">
-          <div className="card-body">
-            <h2 id="device-heading" className="section-heading">Device management</h2>
-            <p className="sub-note">
-              Add details of the device, if any already installed on your car. If none, then continue to next step.
-            </p>
+          <div className="devices-inner">
+            <div className="devices-inner-body">
+              <h2 id="device-heading" className="section-heading">Device management</h2>
+              <p className="sub-note">
+                Add details of the device, if any already installed on your car. If none, then continue to next step.
+              </p>
+            </div>
+
+            <hr className="section-divider-inside" />
 
             <div className="devices-list">
-              {devices.map((d, idx) => (
-                <div key={d.id} className="device-entry card" style={{ marginBottom: 16 }}>
-                  <div className="card-body">
-                    <h4 className="small-heading" style={{ marginTop: 0 }}>{`Device ${idx + 1}`}</h4>
+              {devices.map((d, idx) => {
+                const isLockbox = String(d.deviceType ?? "").toLowerCase().includes("lockbox");
+                const open = isLockbox || !!d.own;
 
-                    <div className="device-grid" style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: "12px 18px", alignItems: "center" }}>
-                      <div className="device-label">Device type</div>
-                      <div className="device-value" style={{ fontWeight: 600, color: "#0b6b6b" }}>{d.deviceType}</div>
+                return (
+                  <div
+                    key={d.id}
+                    className={`device-entry ${open ? "extra-open" : ""}`}
+                    aria-labelledby={`device-${d.id}-heading`}
+                  >
+                    <div className="device-row">
+                      <div className="device-left">
+                        <h3 id={`device-${d.id}-heading`} className="small-heading">Device {idx + 1}</h3>
 
-                      <div className="device-label">Serial number</div>
-                      <div className="device-value">
-                        <input
-                          type="text"
-                          className="serial-input"
-                          placeholder="Enter the serial number of the device"
-                          value={d.serial ?? ""}
-                          onChange={(e) => handleSerialChange(d.id, e.target.value)}
-                        />
-                      </div>
-
-                      <div className="device-label">Bringing your own device?</div>
-                      <div className="device-value">
-                        <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                        <div className="field-row">
+                          <label htmlFor={`deviceType-${d.id}`} className="field-label">Device type</label>
                           <input
-                            type="checkbox"
-                            checked={!!d.own}
-                            onChange={() => handleToggleOwn(d.id)}
-                            aria-label={`Bringing your own device for ${d.deviceType}`}
+                            id={`deviceType-${d.id}`}
+                            name={`deviceType-${d.id}`}
+                            className="device-type-input"
+                            value={d.deviceType}
+                            onChange={(e) => handleDeviceTypeChange(d.id, e.target.value)}
+                            aria-label={`Device ${idx + 1} type`}
                           />
-                          <span style={{ fontSize: 13, color: "#556" }}>
-                            Toggle this on if you're bringing your own device. Leave it off if Drive mate is to provide the device.
-                          </span>
-                        </label>
+                        </div>
                       </div>
 
-                      <div className="device-label">Upload image</div>
-                      <div className="device-value">
-                        {d.image ? (
-                          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                            <img src={d.image} alt={`Device ${idx + 1}`} style={{ maxWidth: 200, maxHeight: 140, borderRadius: 6, border: "1px solid #eee" }} />
-                            <div>
-                              <button type="button" className="btn small" onClick={() => handleClearImage(d.id)}>Remove</button>
+                      <div className="device-right">
+                        {!isLockbox ? (
+                          <div className="own-wrapper" role="group" aria-label={`Bringing device controls for ${d.deviceType}`}>
+                            <div className="own-text">
+                              <div className="own-title">Bringing your own device?</div>
+                              <div className="own-desc">
+                                Toggle this on if you're bringing your own device. Leave it off if Drive mate is to provide the device.
+                              </div>
+                            </div>
+
+                            <div className="own-toggle-control">
+                              <button
+                                type="button"
+                                role="switch"
+                                aria-checked={!!d.own}
+                                aria-labelledby={`device-${d.id}-heading`}
+                                onClick={() => handleToggleOwn(d.id)}
+                                onKeyDown={(e) => {
+                                  if (e.key === " " || e.key === "Enter") {
+                                    e.preventDefault();
+                                    handleToggleOwn(d.id);
+                                  }
+                                }}
+                                className={`toggle-switch ${d.own ? "on" : "off"}`}
+                                id={`own-toggle-${d.id}`}
+                                tabIndex={0}
+                                title={d.own ? "On" : "Off"}
+                              >
+                                <span className="toggle-knob" />
+                              </button>
                             </div>
                           </div>
                         ) : (
-                          <label className="upload-placeholder" style={{ display: "inline-block", border: "1px dashed #e6e6e6", padding: 12, borderRadius: 6, cursor: "pointer" }}>
-                            <div style={{ color: "#0b6b6b", fontWeight: 600 }}>Click to upload</div>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              style={{ display: "none" }}
-                              onChange={(e) => {
-                                const f = e.target.files && e.target.files[0];
-                                handleImageSelect(d.id, f ?? undefined);
-                                if (e.target) (e.target as HTMLInputElement).value = "";
-                              }}
-                            />
-                          </label>
+                          <div className="own-wrapper lockbox-empty" aria-hidden="true" />
                         )}
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
 
+                    <div className={`device-extra ${open ? "open" : ""}`} aria-hidden={!open}>
+                      <div className="device-extra-inner">
+                        <div className="device-extra-left">
+                          <label className="field-label">Serial number</label>
+                          <input
+                            className="device-serial-input"
+                            value={d.serial ?? ""}
+                            onChange={(e) => handleSerialChange(d.id, e.target.value)}
+                            placeholder="Enter the serial number of the device"
+                            aria-label={`Device ${idx + 1} serial`}
+                          />
+                        </div>
+
+                        <div className="device-extra-right">
+                          <label className="field-label">Upload an image of the device</label>
+
+                          <div className="upload-box-wrap">
+                            <label htmlFor={`upload-${d.id}`} className="upload-box" tabIndex={0} aria-hidden={false}>
+                              {d.image ? (
+                                <img src={d.image} alt={`device-${d.id}-preview`} loading="lazy" />
+                              ) : (
+                                <span className="upload-cta">Click to upload</span>
+                              )}
+                            </label>
+
+                            <input
+                              id={`upload-${d.id}`}
+                              type="file"
+                              accept="image/*"
+                              className="upload-input"
+                              onChange={(ev) => {
+                                const f = ev.target.files && ev.target.files[0];
+                                handleFileSelect(d.id, f ?? undefined);
+                              }}
+                              aria-label={`Upload image for device ${idx + 1}`}
+                            />
+
+                            {d.image ? (
+                              <div className="upload-actions">
+                                <button type="button" className="btn" onClick={() => handleClearImage(d.id)}>Clear</button>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Desktop CTA - reuses same classes so it looks identical to subscription page */}
-        <div className="desktop-cta">
-          <button
-            className="btn next-btn-desktop"
-            type="button"
-            onClick={handleNext}
-            aria-label="Next"
-          >
-            Next
-          </button>
+        <div className="desktop-cta" role="region" aria-label="Next action (desktop)">
+          <button className="btn next-btn-desktop" type="button" onClick={handleNext} aria-label="Next">Next</button>
         </div>
 
-        {/* Mobile bottom CTA */}
         <div className="bottom-cta-mobile" aria-hidden={false}>
-          <button
-            className="btn desktop-hidden next-btn-mobile"
-            type="button"
-            onClick={handleNext}
-            aria-label="Next"
-          >
-            Next
-          </button>
+          <button className="btn desktop-hidden next-btn-mobile" type="button" onClick={handleNext} aria-label="Next">Next</button>
         </div>
+
+        {/* aria-live for screen reader announcements (uploads/clears/errors) */}
+        <div className="visually-hidden" aria-live="polite">{liveMessage}</div>
       </div>
     </section>
   );
