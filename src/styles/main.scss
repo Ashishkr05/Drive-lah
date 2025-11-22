@@ -35,3 +35,43 @@ a:focus, button:focus, input:focus, select:focus, textarea:focus {
 
 /* ensure mobile dropdown sits below header visually by default */
 .mobile-dropdown { z-index: 1100; }
+/* When body.header-static-desktop is present (desktop), make header scroll with page */
+body.header-static-desktop .dl-header {
+  position: static !important;
+  /* remove any top/left/right offsets that fixed header had */
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  /* you may want to reset z-index so it doesn't float above content */
+  z-index: auto !important;
+
+}
+/* Remove reserved top space when header is static on desktop */
+@media (min-width: 920px) {
+  /* body.header-static-desktop is added by your new header effect */
+  body.header-static-desktop {
+    /* if you previously had a global top padding on body, reset it */
+    padding-top: 0 !important;
+  }
+
+  /* common right content containers used on these pages */
+  body.header-static-desktop .right-content,
+  body.header-static-desktop .subscription-wrap .right-content,
+  body.header-static-desktop .device-wrap .right-content {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+    box-sizing: border-box;
+  }
+
+  /* If you added a desktop-only padding for device earlier (padding-top: 24px),
+     override that when header is static so content moves up under header */
+  body.header-static-desktop .device-wrap .right-content {
+    padding-top: 0 !important; /* removes the extra 24px you added earlier */
+  }
+
+  /* also reset any card top margin inside the right-content if present */
+  body.header-static-desktop .right-content .card.page-card {
+    margin-top: 0 !important;
+  }
+}
+

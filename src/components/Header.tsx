@@ -7,28 +7,77 @@ import profileDesktop from "../assets/profile-pic-desktop.jpeg";
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const headerHeight = 50;
-    const onScroll = () => {
-      try {
-        const y = window.scrollY || window.pageYOffset || 0;
-        if (y > headerHeight) {
-          document.body.classList.add("content-over");
-        } else {
-          document.body.classList.remove("content-over");
-        }
-      } catch {}
-    };
+useEffect(() => {
+  const headerHeight = 50;
 
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      try {
+  const isDesktop = () => {
+    try {
+      return typeof window !== "undefined" && window.innerWidth >= 920;
+    } catch {
+      return true;
+    }
+  };
+
+  const applyHeaderPositionForDesktop = () => {
+    try {
+      if (isDesktop()) {
+        // add a body marker class to indicate desktop header should be static
+        document.body.classList.add("header-static-desktop");
+      } else {
+        document.body.classList.remove("header-static-desktop");
+      }
+    } catch {}
+  };
+
+  const onScroll = () => {
+    try {
+      // subscriptionMobile remains the trigger for transparency behavior
+      const subscriptionMobile = document.body.classList.contains("subscription-mobile");
+
+      // If we're on desktop, we do NOT want any transparency behavior:
+      // remove content-over and return.
+      if (isDesktop()) {
         document.body.classList.remove("content-over");
-      } catch {}
-    };
-  }, []);
+        return;
+      }
+
+      // For non-desktop (mobile), only toggle content-over when subscription-mobile is active
+      if (!subscriptionMobile) {
+        document.body.classList.remove("content-over");
+        return;
+      }
+
+      const y = window.scrollY || window.pageYOffset || 0;
+      if (y > headerHeight) {
+        document.body.classList.add("content-over");
+      } else {
+        document.body.classList.remove("content-over");
+      }
+    } catch {}
+  };
+
+  // run initial layout updates
+  applyHeaderPositionForDesktop();
+  onScroll();
+
+  const onResize = () => {
+    // update desktop/static marker and run the same scroll logic to keep classes in sync
+    applyHeaderPositionForDesktop();
+    onScroll();
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onResize, { passive: true });
+
+  return () => {
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", onResize);
+    try {
+      document.body.classList.remove("content-over");
+      document.body.classList.remove("header-static-desktop");
+    } catch {}
+  };
+}, []);
 
   useEffect(() => {
     try {
