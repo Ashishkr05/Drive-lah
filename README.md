@@ -1,73 +1,131 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 🚗 Drive Lah – Frontend Developer Assignment
 
-Currently, two official plugins are available:
+This project is a fully responsive, multi-step listing flow built exactly according to the **provided XD designs** (desktop + mobile).
+It includes subscription selection, add-ons, masked payment details, and device management — all persisted in the browser’s localStorage.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ⚙️ Setup Instructions
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+**1. Clone repository**
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/Ashishkr05/Drive-lah
+cd Drive-lah
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**2. Install dependencies**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
+
+**3. Run development server**
+
+```bash
+npm run dev
+```
+
+Local dev URL:
+
+```
+http://localhost:5173
+```
+
+**4. Build for production**
+
+```bash
+npm run build
+```
+
+---
+
+## 🧠 Assumptions & Design Decisions
+
+* **XD designs are the single source of truth.**
+  All spacing, layout, typography, and responsiveness match the provided desktop and mobile designs.
+
+* **LocalStorage is used for all data.**
+  The assignment requires no backend, so subscription, add-ons, masked card preview, and device entries persist entirely in the browser.
+
+* **Masked card design for PCI-style safety.**
+  Only masked PAN + last4 + expiry month/year are stored. CVV is never saved.
+
+* **Plan-based add-ons are dynamically generated.**
+  Add-ons shown depend on the selected plan. This avoids hard-coding logic inside UI components.
+
+* **Device slots remain fixed.**
+  Four device entries are always displayed in order, even across reloads.
+
+* **Responsive layout follows design breakpoints.**
+  Desktop layout uses static header + sidebar steps.
+  Mobile layout uses fixed top header, dropdown navigation, and bottom CTA.
+
+* **Animations kept subtle.**
+  Expand/collapse transitions and hover effects match the assignment requirement for smooth interactions.
+
+* **Accessibility included.**
+  Keyboard toggles, aria roles, aria-live regions, and semantically correct HTML are used across all components.
+
+---
+
+## 📦 Third-Party Libraries & Rationale
+
+### **React**
+
+Used as the primary framework because the assignment requests a modern JavaScript framework and React provides fast component-driven UI development.
+
+### **Redux Toolkit**
+
+Chosen for predictable state management across multiple steps (subscription → add-ons → payment → device).
+Helps maintain clean reducers and enables smooth state persistence.
+
+### **React Router**
+
+Used to handle navigation between multi-step screens while keeping the codebase modular.
+
+### **Vite**
+
+Selected as the build tool for:
+
+* extremely fast development server
+* instant HMR
+* optimized production builds
+* simple Netlify deployment behavior
+
+### **SASS (SCSS)**
+
+Required by assignment. Used for:
+
+* maintaining clean, nested component styles
+* variable management
+* ensuring pixel-perfect adherence to XD designs
+
+### **TypeScript**
+
+Used to strictly type plan IDs, device states, add-ons, masked card data, and improve reliability of all logic-heavy areas.
+
+---
+
+## 📦 Environment & Versions
+
+This project was developed and tested with:
+
+- **Node:** v24.11.1 (Netlify build used v22.21.1 — Node 18+ works)
+- **npm:** v11.6.2
+
+Key dependency versions (from `package.json`):
+
+- react: ^18.2.0  
+- react-dom: ^18.2.0  
+- @reduxjs/toolkit: ^1.9.5  
+- react-redux: ^8.1.2  
+- react-router-dom: ^7.9.6  
+- vite: ^7.2.2  
+- typescript: ~5.9.3  
+- sass: ^1.94.2  
+
+These versions ensure the project builds correctly on both local and Netlify environments.
+
+---
