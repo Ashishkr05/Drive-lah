@@ -1,4 +1,3 @@
-// src/components/Header.tsx
 import React, { useEffect, useState } from "react";
 import logo from "../assets/drive-lah-logo.png";
 import profileMobile from "../assets/profile-pic-mobile.png";
@@ -7,77 +6,70 @@ import profileDesktop from "../assets/profile-pic-desktop.jpeg";
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
 
-useEffect(() => {
-  const headerHeight = 50;
+  useEffect(() => {
+    const headerHeight = 50;
 
-  const isDesktop = () => {
-    try {
-      return typeof window !== "undefined" && window.innerWidth >= 920;
-    } catch {
-      return true;
-    }
-  };
-
-  const applyHeaderPositionForDesktop = () => {
-    try {
-      if (isDesktop()) {
-        // add a body marker class to indicate desktop header should be static
-        document.body.classList.add("header-static-desktop");
-      } else {
-        document.body.classList.remove("header-static-desktop");
+    const isDesktop = () => {
+      try {
+        return typeof window !== "undefined" && window.innerWidth >= 920;
+      } catch {
+        return true;
       }
-    } catch {}
-  };
+    };
 
-  const onScroll = () => {
-    try {
-      // subscriptionMobile remains the trigger for transparency behavior
-      const subscriptionMobile = document.body.classList.contains("subscription-mobile");
+    const applyHeaderPositionForDesktop = () => {
+      try {
+        if (isDesktop()) {
+          document.body.classList.add("header-static-desktop");
+        } else {
+          document.body.classList.remove("header-static-desktop");
+        }
+      } catch {}
+    };
 
-      // If we're on desktop, we do NOT want any transparency behavior:
-      // remove content-over and return.
-      if (isDesktop()) {
-        document.body.classList.remove("content-over");
-        return;
-      }
+    const onScroll = () => {
+      try {
+        const subscriptionMobile = document.body.classList.contains("subscription-mobile");
 
-      // For non-desktop (mobile), only toggle content-over when subscription-mobile is active
-      if (!subscriptionMobile) {
-        document.body.classList.remove("content-over");
-        return;
-      }
+        if (isDesktop()) {
+          document.body.classList.remove("content-over");
+          return;
+        }
 
-      const y = window.scrollY || window.pageYOffset || 0;
-      if (y > headerHeight) {
-        document.body.classList.add("content-over");
-      } else {
-        document.body.classList.remove("content-over");
-      }
-    } catch {}
-  };
+        if (!subscriptionMobile) {
+          document.body.classList.remove("content-over");
+          return;
+        }
 
-  // run initial layout updates
-  applyHeaderPositionForDesktop();
-  onScroll();
+        const y = window.scrollY || window.pageYOffset || 0;
+        if (y > headerHeight) {
+          document.body.classList.add("content-over");
+        } else {
+          document.body.classList.remove("content-over");
+        }
+      } catch {}
+    };
 
-  const onResize = () => {
-    // update desktop/static marker and run the same scroll logic to keep classes in sync
     applyHeaderPositionForDesktop();
     onScroll();
-  };
 
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onResize, { passive: true });
+    const onResize = () => {
+      applyHeaderPositionForDesktop();
+      onScroll();
+    };
 
-  return () => {
-    window.removeEventListener("scroll", onScroll);
-    window.removeEventListener("resize", onResize);
-    try {
-      document.body.classList.remove("content-over");
-      document.body.classList.remove("header-static-desktop");
-    } catch {}
-  };
-}, []);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      try {
+        document.body.classList.remove("content-over");
+        document.body.classList.remove("header-static-desktop");
+      } catch {}
+    };
+  }, []);
 
   useEffect(() => {
     try {

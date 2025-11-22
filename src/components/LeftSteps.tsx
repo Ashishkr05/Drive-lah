@@ -2,7 +2,7 @@ import React from "react";
 
 type Props = {
   active?: string;
-  completed?: string[]; // list of completed step names
+  completed?: string[];
 };
 
 const ALL_STEPS = [
@@ -21,7 +21,7 @@ const ALL_STEPS = [
 
 const CheckIcon = () => (
   <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-    <path d="M1 5.2L4.2 8.4L11 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M1 5.2L4.2 8.4L11 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -45,8 +45,6 @@ const LeftSteps: React.FC<Props> = ({ active = "Subscription", completed = [] })
             >
               <span className="step-text">{step}</span>
 
-              {/* Render right-side indicator ONLY when the step is completed.
-                  Active and upcoming steps render no right-side indicator. */}
               {done ? (
                 <span className="step-check" aria-hidden>
                   <span className="step-check-inner" aria-hidden>

@@ -1,11 +1,5 @@
-// src/store/subscriptionSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./index";
-
-/**
- * Subscription slice with payment preview support stored masked only.
- * Persists to localStorage under "drive_listing_state_v1".
- */
 
 const STORAGE_KEY = "drive_listing_state_v1";
 
@@ -21,18 +15,13 @@ export type AddOn = {
 type MasterAddOn = Omit<AddOn, "enabled"> & { availableOn: Exclude<PlanType, null>[] };
 
 const MASTER_ADDONS: MasterAddOn[] = [
-  // $5 addon visible on just, good, best (you requested $5 for best too)
   { id: "addon-5", label: "BYO secondary GPS - $5/month", comingSoon: false, availableOn: ["just", "good", "best"] },
-
-  // $10 addon visible on good only (removed from best as requested)
   { id: "addon-10", label: "BYO lockbox - $10/month", comingSoon: false, availableOn: ["good"] },
-
-  // coming soon visible on best
   { id: "addon-pro", label: "Between trip insurance", comingSoon: true, availableOn: ["best"] },
 ];
 
 export type PaymentPreview = {
-  masked: string; // e.g. "4242 **** **** 4242"
+  masked: string;
   last4: string;
   expMonth: string;
   expYear: string;
@@ -123,9 +112,7 @@ const slice = createSlice({
     selectPlan(state, action: PayloadAction<SubscriptionState["plan"]>) {
       const newPlan = action.payload ?? null;
       state.plan = newPlan;
-      // regenerate visible add-ons for plan (preserve persisted enables only if they match master)
       state.addOns = buildAddOnsForPlan(newPlan, state.addOns);
-      // if plan is free and no paid addons enabled — keep payment as-is (user may have saved), but UI will decide whether to show.
       saveState(state);
     },
 
@@ -185,20 +172,16 @@ export const { selectPlan, toggleAddOn, setAddOn, setPayment, clearPayment, rest
 
 export default slice.reducer;
 
-/* selectors */
 export const selectSubscription = (s: RootState) => s.subscription as SubscriptionState;
 
-/* helper: whether add-on requires payment */
 export const addOnRequiresCard = (id: string) => id === "addon-5" || id === "addon-10";
 
-/* selector: should show card details? plan good/best OR any enabled paid add-on */
 export const selectShouldShowCardDetails = (s: RootState) => {
   const sub = selectSubscription(s);
   if (sub.plan === "good" || sub.plan === "best") return true;
   return sub.addOns.some((a) => a.enabled && !a.comingSoon && addOnRequiresCard(a.id));
 };
 
-/* helper: visible add-on ids for plan */
 export const visibleAddOnIdsForPlan = (plan: PlanType): string[] => {
   if (!plan) return [];
   return MASTER_ADDONS.filter((m) => m.availableOn.includes(plan)).map((m) => m.id);

@@ -1,4 +1,3 @@
-// src/components/AddOnCheckbox.tsx
 import React from "react";
 
 type Props = {

@@ -1,4 +1,3 @@
-// src/pages/SubscriptionPage.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import PlanCard from "../components/PlanCard";
 import AddOnCheckbox from "../components/AddOnCheckbox";
@@ -61,7 +60,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     },
   ];
 
-  // Restore persisted subscription on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LOCAL_KEY);
@@ -79,12 +77,8 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     } catch {
       // ignore
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch]);
 
-  /* -------------------------
-     NEW: subscription-mobile body class (mobile-only header effect)
-  ------------------------ */
   useEffect(() => {
     const MOBILE_BREAKPOINT = 919;
     const applyIfMobile = () => {
@@ -111,9 +105,7 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
       } catch {}
     };
   }, []);
-  /* ------------------------- end NEW ------------------------- */
 
-  // Responsive grid inline style to reduce feature wrapping
   const [viewportWidth, setViewportWidth] = useState<number>(() =>
     typeof window !== "undefined" ? window.innerWidth : 1200
   );
@@ -123,20 +115,17 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // NOTE: use minmax(0, 1fr) to avoid grid children forcing container overflow
   const planGridStyle = useMemo(() => {
     if (viewportWidth >= 1200) return { gridTemplateColumns: "repeat(3, minmax(0, 1fr))" } as React.CSSProperties;
     if (viewportWidth >= 920) return { gridTemplateColumns: "repeat(3, minmax(0, 1fr))" } as React.CSSProperties;
     return { gridTemplateColumns: "1fr" } as React.CSSProperties;
   }, [viewportWidth]);
 
-  // Card input local state
   const [cardNumber, setCardNumber] = useState<string>("");
   const [expMonth, setExpMonth] = useState<string>("");
   const [expYear, setExpYear] = useState<string>("");
   const [cvc, setCvc] = useState<string>("");
 
-  // load masked preview if present
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LOCAL_KEY);
@@ -157,7 +146,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     }
   }, []);
 
-  // mask PAN for storage
   function maskPan(value: string) {
     const digits = value.replace(/\D/g, "");
     if (digits.length >= 8) {
@@ -170,7 +158,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     return digits.replace(/\d(?=\d{4})/g, "•");
   }
 
-  // improved validation: require MM and YY to be two-digit strings
   function isCardValid() {
     const digits = cardNumber.replace(/\D/g, "");
     const mm = Number(expMonth);
@@ -183,19 +170,11 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     return panOk && mmOk && yyOk && cvcOk;
   }
 
-  // Determine if any paid add-on is selected (slice addOns already limited to plan)
   const hasPaidAddOnSelected = sub.addOns.some((a) => a.enabled && !a.comingSoon && (a.id === "addon-5" || a.id === "addon-10"));
-
-  // Decision: whether card details are required for enabling Next
   const cardRequired = showCardDetailsGlobal;
-
-  // Plan must be selected
   const planSelected = !!sub.plan;
-
-  // final canProceed: plan selected AND (if card required -> card valid) otherwise OK
   const canProceed = planSelected && (!cardRequired || isCardValid());
 
-  // Persist subscription + masked payment preview to local storage & set slice payment
   function persistCurrentStateToLocal(markStepCompleted = false) {
     try {
       const digits = (cardNumber || "").replace(/\D/g, "");
@@ -240,7 +219,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     }
   }
 
-  // Next CTA handler: only act if canProceed
   function handleNextClick() {
     if (!canProceed) {
       return;
@@ -251,49 +229,42 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     }
   }
 
-  // format card number as user types (groups of 4)
   function formatCardInput(value: string) {
     const digits = value.replace(/\D/g, "").slice(0, 19);
     return digits.replace(/(.{4})/g, "$1 ").trim();
   }
 
-  // Main block content (everything except heading/sub-note)
   const innerContent = (
     <>
       <h3 className="small-heading">Select your plan</h3>
 
       <div className="plan-grid" role="list" style={planGridStyle}>
-      {planData.map((p) => {
-        // split price string into amount + unit if string format is "$10/month"
-        const priceText = typeof p.price === "string" ? p.price : String(p.price);
-        const [amount, unit] = priceText.split(/(\/.*)/).map((s) => (s ? s.trim() : ""));
+        {planData.map((p) => {
+          const priceText = typeof p.price === "string" ? p.price : String(p.price);
+          const [amount, unit] = priceText.split(/(\/.*)/).map((s) => (s ? s.trim() : ""));
 
-        // build a node so we can style amount and unit separately
-        const priceNode = (
-          <span className="plan-price" aria-hidden>
-            <span className="plan-price-amount">{amount}</span>
-            {unit ? <span className="plan-price-unit">{unit}</span> : null}
-          </span>
-        );
+          const priceNode = (
+            <span className="plan-price" aria-hidden>
+              <span className="plan-price-amount">{amount}</span>
+              {unit ? <span className="plan-price-unit">{unit}</span> : null}
+            </span>
+          );
 
-        return (
-          <PlanCard
-            key={p.id}
-            id={p.id}
-            title={p.title}
-            features={p.features}
-            // cast to any to avoid strict Prop type issues if PlanCard expects string
-            priceLabel={priceNode as any}
-            selected={sub.plan === p.id}
-            onSelect={(id) => dispatch(selectPlan(id))}
-          />
-        );
-      })}
-    </div>
+          return (
+            <PlanCard
+              key={p.id}
+              id={p.id}
+              title={p.title}
+              features={p.features}
+              priceLabel={priceNode as any}
+              selected={sub.plan === p.id}
+              onSelect={(id) => dispatch(selectPlan(id))}
+            />
+          );
+        })}
+      </div>
 
-
-      {/* Show this divider only when card details are visible */}
-      {<div className="divider" />}
+      <div className="divider" />
 
       {sub.plan && Array.isArray(sub.addOns) && sub.addOns.length > 0 && (
         <>
@@ -311,7 +282,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
               />
             ))}
           </div>
-          {/* keep this divider inside the add-ons block as before (no change) */}
           <div className="divider" />
         </>
       )}
@@ -390,7 +360,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Show this divider only when card details are visible */}
       {showCardDetailsGlobal && <div className="divider" />}
 
       <div className="learn-more">
@@ -406,7 +375,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     </>
   );
 
-  // Desktop-only wrapper styles (inline to avoid touching global scss)
   const desktopFrameStyle: React.CSSProperties = {
     border: "1px solid rgba(0,0,0,0.08)",
     borderRadius: 8,
@@ -414,7 +382,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
     marginTop: 12,
     boxSizing: "border-box",
     width: "100%",
-    // ensure grid children wrap inside; avoid clipping but prevent overflow pushing out of parent
     overflow: "visible",
     background: "white",
     boxShadow: "0 6px 18px rgba(13,13,13,0.04)",
@@ -437,19 +404,15 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
       />
 
       <div className="right-content">
-        {/* static label so mobile dropdown shows "Subscription" not the selected plan */}
         <MobileDropdown value="Subscription" onOpen={() => {}} />
 
         <div className="card page-card first-card-mobile" role="region">
           <div className="card-body">
-            {/** Render heading + sub-note inside the desktop frame for desktop,
-                but keep the mobile layout unchanged (heading outside frame) */}
             {viewportWidth >= 920 ? (
               <div className="desktop-frame" style={desktopFrameStyle}>
                 <h2 id="subscription-heading" className="section-heading">Subscription plan</h2>
                 <p className="sub-note">Select the ideal subscription plan for your listing.</p>
 
-                {/* FULL-WIDTH HORIZONTAL LINE — desktop only */}
                 {viewportWidth >= 920 && <div className="desktop-top-divider" />}
 
                 {innerContent}
@@ -461,11 +424,9 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
                 {innerContent}
               </>
             )}
-
           </div>
         </div>
 
-        {/* mobile bottom CTA */}
         <div className="bottom-cta-mobile" aria-hidden={false}>
           <button
             className={`btn desktop-hidden next-btn-mobile ${!canProceed ? "is-disabled" : ""}`}
@@ -479,7 +440,6 @@ const SubscriptionPage: React.FC<Props> = ({ onNavigate }) => {
           </button>
         </div>
 
-        {/* desktop CTA */}
         <div className="desktop-cta">
           <button
             className={`btn next-btn-desktop ${!canProceed ? "is-disabled" : ""}`}

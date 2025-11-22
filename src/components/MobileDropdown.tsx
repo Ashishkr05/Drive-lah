@@ -1,4 +1,3 @@
-// src/components/MobileDropdown.tsx
 import React from "react";
 
 interface Props {

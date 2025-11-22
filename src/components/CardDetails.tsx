@@ -1,13 +1,6 @@
-// src/components/CardDetails.tsx
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setPayment, clearPayment } from "../store/subscriptionSlice";
-
-/**
- * CardDetails - inline card input row.
- * Inputs are always visible and editable so users can enter new card details even
- * when a masked preview exists. Save masks & persists preview to redux slice.
- */
 
 type Props = {
   existing?: {
@@ -30,7 +23,7 @@ const formatMasked = (num: string) => {
 
 const simpleValidate = (num: string, mm: string, yy: string, cvc: string) => {
   const digits = num.replace(/\D/g, "");
-  if (digits.length < 12) return false; // require at least 12 digits (16 is typical)
+  if (digits.length < 12) return false;
   const m = Number(mm);
   const y = Number(yy);
   if (!m || m < 1 || m > 12) return false;
@@ -43,12 +36,9 @@ const simpleValidate = (num: string, mm: string, yy: string, cvc: string) => {
 const CardDetails: React.FC<Props> = ({ existing = null }) => {
   const dispatch = useDispatch();
 
-  // stored raw digits for card number (editable)
   const [cardRaw, setCardRaw] = useState<string>("");
-  // visible formatted groups "1234 5678 9012 3456"
   const [cardVisible, setCardVisible] = useState<string>("");
 
-  // expiry and cvc
   const [mm, setMm] = useState<string>(existing?.expMonth ?? "");
   const [yy, setYy] = useState<string>(existing?.expYear ?? "");
   const [cvc, setCvc] = useState<string>("");
@@ -56,33 +46,27 @@ const CardDetails: React.FC<Props> = ({ existing = null }) => {
   const [error, setError] = useState<string | null>(null);
   const [savedMask, setSavedMask] = useState<string | null>(existing?.masked ?? null);
 
-  // If an existing masked card is present, populate visible fields so user can edit them.
   useEffect(() => {
     if (existing?.masked) {
       setCardVisible(existing.masked);
-      // do not populate cardRaw (we don't store full raw); keep cardRaw empty so typing replaces it
       setCardRaw("");
       setMm(existing.expMonth ?? "");
       setYy(existing.expYear ?? "");
       setSavedMask(existing.masked);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existing?.masked]);
 
   const onCardChange = (value: string) => {
-    // allow typing with spaces, keep raw digits separately
     const digits = value.replace(/\D/g, "");
     const groups = digits.match(/.{1,4}/g) || [];
     const visible = groups.join(" ");
     setCardVisible(visible);
     setCardRaw(digits);
     setError(null);
-    // editing a previously saved mask should clear the saved preview in UI until Save is pressed
     setSavedMask(null);
   };
 
   const onSave = () => {
-    // if user didn't type full digits but there is an existing masked preview, allow saving expiry-only updates
     if (!simpleValidate(cardRaw || "", mm, yy, cvc)) {
       setError("Please enter valid card details (card, expiry MM/YY, CVC).");
       return;
@@ -100,7 +84,6 @@ const CardDetails: React.FC<Props> = ({ existing = null }) => {
 
     dispatch(setPayment(payload));
     setSavedMask(masked);
-    // clear CVV from state after save for security
     setCvc("");
     setError(null);
   };
@@ -120,7 +103,6 @@ const CardDetails: React.FC<Props> = ({ existing = null }) => {
     <div className="card-visual card-visual-inline" aria-live="polite">
       <div className="card-inline-row" style={{ alignItems: "center", gap: 12 }}>
         <div className="card-input group-card-number" style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-          {/* card number input (always editable) */}
           <input
             type="text"
             inputMode="numeric"
@@ -133,7 +115,6 @@ const CardDetails: React.FC<Props> = ({ existing = null }) => {
             style={{ minWidth: 280, flex: "1 1 auto" }}
           />
 
-          {/* expiry MM */}
           <input
             type="text"
             inputMode="numeric"
@@ -145,7 +126,6 @@ const CardDetails: React.FC<Props> = ({ existing = null }) => {
             style={{ width: 84, flex: "0 0 84px" }}
           />
 
-          {/* expiry YY */}
           <input
             type="text"
             inputMode="numeric"
@@ -157,7 +137,6 @@ const CardDetails: React.FC<Props> = ({ existing = null }) => {
             style={{ width: 84, flex: "0 0 84px" }}
           />
 
-          {/* CVC */}
           <input
             type="password"
             inputMode="numeric"
@@ -193,7 +172,6 @@ const CardDetails: React.FC<Props> = ({ existing = null }) => {
         </div>
       </div>
 
-      {/* show saved masked preview below (non-blocking) */}
       {savedMask && (
         <div style={{ marginTop: 8 }}>
           <div style={{ fontSize: 13, color: "#6b7f7f" }}>Saved card preview</div>

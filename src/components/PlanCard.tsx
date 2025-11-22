@@ -1,4 +1,3 @@
-
 import React from "react";
 
 type PlanId = "just" | "good" | "best";
@@ -7,13 +6,12 @@ interface Props {
   id: PlanId;
   title: string;
   features: string[];
-  priceLabel: string;
+  priceLabel: React.ReactNode;
   selected?: boolean;
   onSelect: (id: PlanId) => void;
 }
 
 const Icon: React.FC<{ type?: "pin" | "mileage" | "lock" }> = ({ type = "pin" }) => {
-  // small inline SVG icons (kept small & neutral, teal stroke)
   if (type === "pin") {
     return (
       <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden focusable="false">
@@ -30,7 +28,6 @@ const Icon: React.FC<{ type?: "pin" | "mileage" | "lock" }> = ({ type = "pin" })
       </svg>
     );
   } else {
-    // lock
     return (
       <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden focusable="false">
         <rect x="4" y="10" width="16" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -41,13 +38,17 @@ const Icon: React.FC<{ type?: "pin" | "mileage" | "lock" }> = ({ type = "pin" })
 };
 
 const PlanCard: React.FC<Props> = ({ id, title, features, priceLabel, selected, onSelect }) => {
-  // heuristics: pick icon types by order: first feature uses pin, second mileage, third lock (keeps images consistent with target)
   return (
     <div
       role="listitem"
       tabIndex={0}
       onClick={() => onSelect(id)}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(id); } }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(id);
+        }
+      }}
       className={`plan-card ${selected ? "selected" : ""}`}
       aria-pressed={!!selected}
       aria-label={`${title} plan${selected ? " selected" : ""}`}
@@ -57,7 +58,6 @@ const PlanCard: React.FC<Props> = ({ id, title, features, priceLabel, selected, 
 
         <ul className="plan-features" aria-hidden={false}>
           {features.map((f, i) => {
-            // icon type mapping by index
             const type = i === 0 ? "pin" : i === 1 ? "mileage" : "lock";
             return (
               <li key={i} className="plan-feature-item">

@@ -1,24 +1,12 @@
-/* DevicePage.scss
-   Full combined stylesheet.
-   - Desktop/base styles first (unchanged behavior)
-   - Mobile-only overrides below (<=880px and <=720px)
-   Note: mobile rules purposely use !important only for hiding outer card border to ensure mobile hide.
-*/
-
 :root {
   --primary-teal: #006c94;
   --muted-divider: #e6e9e9;
   --label-muted: #6d6f72;
   --input-border: #e6e9e9;
-
-  /* desktop default reserved area for the extra reveal */
   --device-extra-max: 160px;
-
-  /* mobile sticky CTA estimated height (used to inset content so CTA doesn't overlap) */
   --mobile-cta-height: 72px;
 }
 
-/* ---------- Desktop / base styles (unchanged behavior) ---------- */
 .card.page-card {
   border: 0;
   background: transparent;
@@ -26,7 +14,6 @@
   box-sizing: border-box;
 }
 
-/* visible rounded container that holds heading + rows */
 .devices-inner {
   position: relative;
   border-radius: 8px;
@@ -43,7 +30,6 @@
   margin: 0 auto;
 }
 
-/* heading and intro */
 .section-heading {
   font-size: 22px;
   color: var(--primary-teal);
@@ -57,7 +43,6 @@
   font-weight: 480;
 }
 
-/* top divider (edge-to-edge inside devices-inner) */
 .section-divider-inside {
   position: relative;
   height: 1px;
@@ -75,13 +60,11 @@
   background: #f2f4f4;
 }
 
-/* list container */
 .devices-list {
   margin: 0;
   padding: 0;
 }
 
-/* each device entry reserves space for extra reveal area */
 .device-entry {
   position: relative;
   padding: 16px 0;
@@ -91,7 +74,6 @@
   --extra-translate: var(--device-extra-max);
 }
 
-/* row that holds left + right columns */
 .device-row {
   display: flex;
   gap: 18px;
@@ -99,10 +81,9 @@
   width: 100%;
   box-sizing: border-box;
   position: relative;
-  min-height: 72px; /* desktop stable row height */
+  min-height: 72px;
 }
 
-/* divider just below the row; it will slide down by --extra-translate */
 .device-row::after {
   content: "";
   position: absolute;
@@ -119,7 +100,6 @@
   display: none;
 }
 
-/* left column */
 .device-left {
   flex: 1 1 50%;
   min-width: 220px;
@@ -145,7 +125,6 @@
   margin: 0;
 }
 
-/* input appearance */
 .device-type-input {
   width: 100%;
   max-width: 420px;
@@ -164,7 +143,6 @@
   border-color: rgba(11,139,134,0.6);
 }
 
-/* right column */
 .device-right {
   flex: 0 0 50%;
   display: flex;
@@ -175,7 +153,6 @@
   position: relative;
 }
 
-/* container for the "bringing your own" block and its toggle */
 .own-wrapper {
   display: flex;
   width: 100%;
@@ -200,12 +177,10 @@
   margin: 0;
 }
 
-/* in case there's no toggle (lockbox) keep a minimal element for alignment */
 .lockbox-empty {
   min-height: 1px;
 }
 
-/* toggle fixed area to avoid overlap on right column */
 .own-toggle-control {
   width: 72px;
   min-width: 72px;
@@ -215,7 +190,7 @@
   justify-content: flex-end;
   z-index: 5;
 }
-/* switch control */
+
 .toggle-switch {
   width: 36px;
   height: 20px;
@@ -249,13 +224,11 @@
   transform: translateX(16px);
 }
 
-/* focus style for toggle (keyboard visible) */
 .toggle-switch:focus {
   outline: 3px solid rgba(11,139,134,0.16);
   outline-offset: 3px;
 }
 
-/* reserved extra area under the row (desktop default) */
 .device-extra {
   height: var(--device-extra-max);
   overflow: hidden;
@@ -276,7 +249,6 @@
   opacity: 1;
 }
 
-/* left+right inside extra area (desktop) */
 .device-extra-left {
   flex: 1 1 50%;
   display: flex;
@@ -350,7 +322,6 @@
   border: 1px solid var(--input-border);
 }
 
-/* button styling (base) */
 .btn {
   background: var(--primary-teal);
   color: #fff;
@@ -361,18 +332,15 @@
   font-weight: 600;
 }
 
-/* ---------- DESKTOP WHITE CTA BAND + NEXT BUTTON (updated) ---------- */
-/* Provide the white band (full-width) and center the Next button.
-   Next button CSS updated to match mobile CTA style as requested. */
 @media (min-width: 881px) {
   .desktop-cta {
     margin-top: 18px;
     display: flex;
-    justify-content: center;       /* center the button */
+    justify-content: center;
     align-items: center;
     width: 100%;
-    background: #fff;               /* white band */
-    border-top: 1px solid #f2f4f4;  /* subtle top divider */
+    background: #fff;
+    border-top: 1px solid #f2f4f4;
     padding: 18px 0;
     box-sizing: border-box;
     position: fixed;
@@ -387,10 +355,9 @@
   .own-toggle-control {
     margin-top: 55px;
   }
-  /* Make desktop Next look like mobile Next (same color, padding, radius, shadow, weight) */
   .desktop-cta .btn.next-btn-desktop {
-    background: #ffd86b; /* same as mobile yellow */
-    color: #083233;      /* teal-ish text color used on mobile */
+    background: #ffd86b;
+    color: #083233;
     padding: 12px 44px;
     border-radius: 6px;
     box-shadow: 0 6px 12px rgba(0,0,0,0.08);
@@ -402,7 +369,6 @@
   }
 }
 
-/* mobile sticky CTA (small screens) - button style tuned for mobile */
 .bottom-cta-mobile {
   display: none;
 }
@@ -422,7 +388,7 @@
     pointer-events: auto;
     width: 100%;
     max-width: 640px;
-    background: #ffd86b; /* matches desktop now */
+    background: #ffd86b;
     color: #083233;
     font-weight: 800;
     padding: 12px 44px;
@@ -432,24 +398,13 @@
   }
 }
 
-/* ---------- MOBILE-ONLY STYLES (<=880px / <=720px) ----------
-   - reserves vertical space for extra fields (closed or open)
-   - reveals fields with fade/slide when .device-extra.open is present
-   - prevents overlapping on small screens
-   - adds horizontal inset so content doesn't touch edges
-   - hides the .card.page-card visible border on mobile
-   NOTE: these rules intentionally keep desktop flow untouched.
------------------------------------------------------------------ */
-
-/* Mobile main block (<=880px) */
 @media (max-width: 880px) {
   :root {
-    --device-extra-max: 320px;   /* reserved area height under each device row */
-    --mobile-cta-height: 72px;   /* sticky Next CTA height */
-    --mobile-inset: 12px;        /* left/right inset for the inner box */
+    --device-extra-max: 320px;
+    --mobile-cta-height: 72px;
+    --mobile-inset: 12px;
   }
 
-  /* Hide the visible outer card border on mobile (target design: no visible card) */
   .card.page-card {
     border: 0 !important;
     box-shadow: none !important;
@@ -457,26 +412,22 @@
     padding: 12px 0;
   }
 
-  /* Keep the inner devices-inner white block but inset it horizontally to create the safe margin */
   .devices-inner {
     padding-left: var(--mobile-inset);
     padding-right: var(--mobile-inset);
     padding-top: 18px;
-    /* keep extra bottom padding so the sticky CTA won't cover revealed content */
     padding-bottom: calc(var(--mobile-cta-height) + 36px);
     background: #fff;
     border-radius: 8px;
     box-sizing: border-box;
-    border: 0; /* remove inner border on mobile (target) */
+    border: 0;
   }
 
-  /* align top divider to inset */
   .section-divider-inside::after {
     left: calc(-1 * var(--mobile-inset));
     right: calc(-1 * var(--mobile-inset));
   }
 
-  /* stack device rows vertically */
   .device-row {
     flex-direction: column;
     align-items: stretch;
@@ -484,7 +435,6 @@
     min-height: 0;
   }
 
-  /* move divider down below the reserved area */
   .device-row::after {
     left: calc(-1 * var(--mobile-inset));
     right: calc(-1 * var(--mobile-inset));
@@ -496,23 +446,20 @@
     transition: transform 320ms cubic-bezier(.2,.9,.2,1);
   }
 
-  /* add consistent gap between stacked rows */
   .device-entry {
     padding: 12px 0;
     margin-bottom: 12px;
   }
 
-  /* ---------- ALWAYS RESERVE SPACE: closed or open ---------- */
   .device-extra {
-    max-height: var(--device-extra-max);  /* reserve area always on mobile */
-    overflow: hidden;                     /* clip content until revealed */
+    max-height: var(--device-extra-max);
+    overflow: hidden;
     position: relative;
     padding-top: 0;
     padding-bottom: 0;
     transition: padding 260ms ease, max-height 320ms cubic-bezier(.2,.9,.2,1);
   }
 
-  /* inner fields initially invisible (closed) but space present */
   .device-extra-inner {
     transform: translateY(12px);
     opacity: 0;
@@ -525,7 +472,6 @@
     flex-direction: column;
   }
 
-  /* reveal when open */
   .device-extra.open .device-extra-inner {
     transform: translateY(0);
     opacity: 1;
@@ -538,7 +484,6 @@
     padding-bottom: 6px;
   }
 
-  /* upload area full width on mobile */
   .upload-box {
     width: 100%;
     height: 150px;
@@ -553,12 +498,10 @@
   margin: 0 0 6px 0;
   font-weight: 700;
 }
-  /* small breathing between device rows (extra safeguard) */
   .device-entry + .device-entry {
     margin-top: 6px;
   }
 
-  /* bottom sticky CTA area */
   .bottom-cta-mobile {
     position: fixed;
     left: 0;
@@ -583,7 +526,6 @@
     box-shadow: 0 6px 12px rgba(0,0,0,0.08);
   }
 
-  /* readability tweaks */
   .own-desc {
     font-size: 15px;
     line-height: 1.3;
@@ -592,14 +534,12 @@
     max-width: 100%;
   }
 
-  /* heading area inside devices-inner respects inset */
   .devices-inner-body {
     padding-left: 0;
     padding-right: 0;
   }
 }
 
-/* ---------- Mobile small tweaks (<=720px) ---------- */
 @media (max-width: 720px) {
   :root {
     --device-extra-max: 320px;
@@ -634,7 +574,6 @@
   }
 }
 
-/* small utility tweaks */
 .visually-hidden {
   position: absolute !important;
   width: 1px;

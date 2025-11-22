@@ -1,4 +1,3 @@
-// src/pages/DevicePage.tsx
 import React, { useEffect, useState, useCallback } from "react";
 import LeftSteps from "../components/LeftSteps";
 import MobileDropdown from "../components/MobileDropdown";
@@ -6,14 +5,8 @@ import MobileDropdown from "../components/MobileDropdown";
 const STORAGE_KEY_DEVICES = "drive_listing_devices_v1";
 const ROOT_KEY = "drive_listing_state_v1";
 
-/* optional local placeholder image (safe fallback for visual testing) */
-const TEST_IMAGE_URL = "/mnt/data/283211d6-0565-4a6e-8cb0-3ba75474cb23.png";
 
-/** small size guard for storing images in localStorage (data URL).
- *  If file is larger than this, user is asked to choose smaller file.
- *  Adjust as you prefer (300*1024 = 300KB).
- */
-const IMAGE_SIZE_LIMIT_BYTES = 300 * 1024; // 300 KB
+const IMAGE_SIZE_LIMIT_BYTES = 300 * 1024;
 
 export type DeviceState = {
   id: string;
@@ -27,7 +20,6 @@ interface Props {
   onNavigate?: (target: "subscription" | "device" | "easy-access") => void;
 }
 
-/* Default device slots */
 const DEFAULT_SLOTS: DeviceState[] = [
   { id: "d1", deviceType: "Primary GPS", serial: "", image: null, own: false },
   { id: "d2", deviceType: "Secondary GPS", serial: "", image: null, own: false },
@@ -35,7 +27,6 @@ const DEFAULT_SLOTS: DeviceState[] = [
   { id: "d4", deviceType: "Lockbox", serial: "", image: null, own: false },
 ];
 
-/* Safe JSON parse helper */
 function safeParse<T = any>(raw: string | null): T | null {
   if (!raw) return null;
   try {
@@ -45,7 +36,6 @@ function safeParse<T = any>(raw: string | null): T | null {
   }
 }
 
-/* Load persisted device list from device key; map onto DEFAULT_SLOTS for stable ordering */
 function loadDevices(): DeviceState[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_DEVICES);
@@ -68,23 +58,12 @@ function loadDevices(): DeviceState[] {
   }
 }
 
-/* Save to device-specific key */
 function saveDevices(devs: DeviceState[]) {
   try {
     localStorage.setItem(STORAGE_KEY_DEVICES, JSON.stringify(devs));
-  } catch (e) {
-    // keep silent but log during dev
-    // console.warn("saveDevices failed", e);
-  }
+  } catch (e) {}
 }
 
-/**
- * Merge devices into the application root payload (drive_listing_state_v1).
- * If markCompleted is true, ensure "Device" appears in completedSteps.
- *
- * This function merges non-destructively: it keeps existing root properties
- * and writes/overwrites `devices` + `completedSteps` + `timestamp`.
- */
 function mergeDevicesIntoRoot(devs: DeviceState[], markCompleted = false) {
   try {
     const rawRoot = localStorage.getItem(ROOT_KEY);
@@ -107,16 +86,13 @@ function mergeDevicesIntoRoot(devs: DeviceState[], markCompleted = false) {
     };
 
     localStorage.setItem(ROOT_KEY, JSON.stringify(nextRoot));
-  } catch (e) {
-    // console.warn("mergeDevicesIntoRoot failed", e);
-  }
+  } catch (e) {}
 }
 
 const DevicePage: React.FC<Props> = ({ onNavigate }) => {
   const [devices, setDevices] = useState<DeviceState[]>(() => loadDevices());
   const [liveMessage, setLiveMessage] = useState<string>("");
 
-  // persist devices to device key AND keep root in-sync (non-destructive)
   useEffect(() => {
     saveDevices(devices);
     mergeDevicesIntoRoot(devices, false);
@@ -154,7 +130,6 @@ const DevicePage: React.FC<Props> = ({ onNavigate }) => {
       setLiveMessage("Image uploaded.");
     };
     reader.onerror = () => {
-      // handle read errors gracefully
       window.alert("Failed to read the file. Please try another image.");
       setLiveMessage("Image upload failed.");
     };
@@ -167,15 +142,11 @@ const DevicePage: React.FC<Props> = ({ onNavigate }) => {
   }, [updateDevice]);
 
   const handleNext = useCallback(() => {
-    // persist devices + merge into root and mark Device step completed
     saveDevices(devices);
     mergeDevicesIntoRoot(devices, true);
 
     if (typeof onNavigate === "function") {
       onNavigate("easy-access");
-    } else {
-      // If parent navigation not provided, you may integrate router navigate here
-      // leaving intentionally blank to preserve your existing flow.
     }
   }, [devices, onNavigate]);
 
@@ -338,7 +309,6 @@ const DevicePage: React.FC<Props> = ({ onNavigate }) => {
           <button className="btn desktop-hidden next-btn-mobile" type="button" onClick={handleNext} aria-label="Next">Next</button>
         </div>
 
-        {/* aria-live for screen reader announcements (uploads/clears/errors) */}
         <div className="visually-hidden" aria-live="polite">{liveMessage}</div>
       </div>
     </section>
