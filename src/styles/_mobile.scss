@@ -42,20 +42,20 @@
   .subscription-wrap { display: block; margin: 0; padding: 0; }
   .left-steps { display: none; }
   .page-card { border-radius: 0; border-left: none; border-right: none; max-width: none; }
-  .card-body { padding: 14px; }
+  .card-body { padding-right: 30px;  padding-left: 30px;}
   .plan-grid { grid-template-columns: 1fr; }
   .plan-card { text-align: left; min-height: auto; padding: 16px; }
   .plan-card .plan-inner { align-items: flex-start; }
   .plan-card .plan-features { max-width: none; width: 100%; padding-left: 6px; }
   .plan-feature-item { justify-content: flex-start; gap: 10px; }
-  .sub-note { margin-bottom: 8px; }
+  .sub-note { margin-bottom: 8px; font-weight: 400;}
   .card-visual .card-mock { font-size: 13px; }
   .right-content { padding-bottom: 140px; }
   .hamburger { display: block; }
   .nav-desktop { display: none; }
-  .brand-title { font-size: 25px; font-weight: 300; letter-spacing: 0.2px; margin-left: -8px; }
+  .brand-title { font-size: 25px; font-weight: 480; letter-spacing: 0.2px; margin-left: -8px; }
   .brand-logo { height: 59px; width: 59px; }
-  .mobile-profile { display: block; width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid $white; margin-left: 8px; order: 3; }
+  .mobile-profile { display: block; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid $white; margin-left: 8px; order: 3; }
   .right-actions { display: none; }
   .page-card.first-card-mobile { margin-top: 12px; }
 
@@ -77,4 +77,24 @@
     font-weight: 800;
     color: #083233;
   }
+  .addon-box .addon-coming {
+  position: absolute;
+  left: 6px;                 /* match box padding so it hugs the left edge */
+  top: -23px;                 /* move up to overlap border slightly */
+  z-index: 2;
+  font-size: 12px;
+  background: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #585757;
+  display: inline-block;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03); /* subtle depth */
+}
+body.content-over .learn-more {
+  font-size: 20px;
+}
+.card-visual .help-note {
+  font-size: 20px;
+}
+
 }

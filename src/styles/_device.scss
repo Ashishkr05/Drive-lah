@@ -6,7 +6,7 @@
 */
 
 :root {
-  --primary-teal: #0b8b86;
+  --primary-teal: #006c94;
   --muted-divider: #e6e9e9;
   --label-muted: #6d6f72;
   --input-border: #e6e9e9;
@@ -48,12 +48,13 @@
   font-size: 22px;
   color: var(--primary-teal);
   margin: 0 0 6px 0;
-  font-weight: 700;
+  font-weight: 500;
 }
 .sub-note {
-  color: #6b6f71;
-  margin: 0 0 14px 0;
-  font-size: 14px;
+  color: #303233;
+  margin: 0 100px 14px 0;
+  font-size: 16px;
+  font-weight: 480;
 }
 
 /* top divider (edge-to-edge inside devices-inner) */
@@ -126,10 +127,10 @@
   gap: 8px;
 }
 .small-heading {
-  margin: 0;
-  font-weight: 700;
-  color: var(--primary-teal);
-  font-size: 15px;
+  margin-bottom: 17px;
+  font-weight: 475;
+  color: rgb(68, 69, 70);
+  font-size: 16px;
 }
 .field-row {
   display:flex;
@@ -376,7 +377,6 @@
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 24px;
     z-index: 1400;
     pointer-events: auto;
   }
@@ -392,6 +392,7 @@
     font-weight: 800;
     min-width: 240px;
     height: 48px;
+    margin-left: 1165px;
   }
 }
 
@@ -539,7 +540,12 @@
   .device-extra-right {
     flex: 1 1 100%;
   }
-
+  .section-heading {
+  font-size: 26px;
+  color: var(--primary-teal);
+  margin: 0 0 6px 0;
+  font-weight: 700;
+}
   /* small breathing between device rows (extra safeguard) */
   .device-entry + .device-entry {
     margin-top: 6px;

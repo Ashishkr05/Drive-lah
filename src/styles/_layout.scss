@@ -15,6 +15,7 @@
   padding-left: 28px;
   flex-shrink: 0;
   box-sizing: border-box;
+  margin-top: 60px;
 }
 .left-steps ul {
   list-style: none;
@@ -103,7 +104,7 @@
 }
 
 /* divider */
-.divider { height: 1px; background: $divider; margin: 16px 0; }
+.divider { height: 1px; background: $divider; margin: 16px -20px; }
 
 /* CTA zones */
 .desktop-cta {
@@ -210,6 +211,7 @@ body.content-over .learn-more {
 .collapsible-inner {
   padding-top: 10px;
   padding-bottom: 10px;
+  margin-top: -20px;
 }
 
 /* Addon badge and label alignment */
@@ -434,4 +436,22 @@ body.content-over .learn-more {
     border-top: 1px solid #f0f0f0;
     padding: 8px 0;
   }
+}
+
+
+/* ensure page content can scroll above the desktop CTA */
+@media (min-width: 920px) {
+  .right-content {
+    padding-bottom: 140px; /* space to accommodate the fixed/overlay Next CTA */
+  }
+
+  /* if your card/frame has its own container that should show extra space too */
+  .page-card,
+  .desktop-frame {
+    padding-bottom: 24px; /* keep card padding comfortable - optional */
+  }
+}
+.learn-more-link{
+  color: #0b6b72;
+  margin-left: 5px;
 }

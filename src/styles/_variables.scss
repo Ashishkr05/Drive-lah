@@ -1,5 +1,5 @@
 // color / spacing / typography variables
-$primary: #009da6;
+$primary: hwb(183 0% 35%);
 $dl-teal: #009da6;
 $white: #ffffff;
 
@@ -28,3 +28,33 @@ $muted-text: $feature-text !default;    /* used for small labels */
 $primary-dark: $primary !default;       /* accent / darker primary */
 $input-border: $border-muted !default;  /* input border color */
 $input-bg: $white !default; 
+
+/* Desktop only tweaks */
+@media (min-width: 920px) {
+  /* widen the outer card/frame so content doesn’t feel cramped */
+  .card.page-card,
+  .page-card .card-body,
+  .desktop-frame {
+    width: 100%;
+    max-width: 100%;
+    padding: 28px; /* increase inner padding */
+    box-sizing: border-box;
+    border-radius: 8px;
+  }
+
+  /* The full-width divider under the sub-note */
+  .desktop-top-divider {
+    width: 11o%;
+    height: 1px;
+    background: rgba(0,0,0,0.06);
+    margin: 18px -20px;
+  }
+
+  /* ensure plan-grid children shrink rather than force overflow */
+  .plan-grid {
+    display: grid;
+    grid-gap: 18px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+}
