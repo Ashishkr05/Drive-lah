@@ -3,6 +3,8 @@ import React from "react";
 import Header from "./components/Header";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import DevicePage from "./pages/DevicePage";
+import "./styles/device-subscription-overrides.scss";
+
 
 /**
  * App

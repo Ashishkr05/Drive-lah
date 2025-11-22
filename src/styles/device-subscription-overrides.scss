@@ -1,0 +1,52 @@
+/* Mobile: add horizontal padding to the right column and
+   ensure the card fills the padded area (no extra internal margin) */
+@media (max-width: 919px) {
+    
+  /* Ensure the whole right area uses box-sizing and has side padding */
+  .device-wrap .right-content,
+  .subscription-wrap .right-content {
+    padding-left: 30px;
+    padding-right: 30px;
+    box-sizing: border-box;
+  }
+
+  /* Make the page-card respect parent's padding and not add extra side margins */
+  .device-wrap .card.page-card,
+  .subscription-wrap .card.page-card {
+    margin-left: 0;
+    margin-right: 0;
+    width: auto;         /* allow card to size within padded area */
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* If your card-body has large padding that makes the visual feel too cramped, tweak it */
+  .device-wrap .card.page-card .card-body,
+  .subscription-wrap .card.page-card .card-body {
+    padding-left: 0;     /* we already have outer padding */
+    padding-right: 0;
+  }
+
+  /* If LeftSteps is absolutely positioned and overlapping on mobile,
+     make sure it doesn't affect horizontal flow */
+  .device-wrap .left-steps,
+  .subscription-wrap .left-steps {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Optional: reduce padding on inputs inside mobile to fit better */
+  .device-wrap .device-row,
+  .device-wrap .device-extra-inner,
+  .device-wrap .upload-box-wrap {
+    padding-left: 0;
+    padding-right: 0;
+    box-sizing: border-box;
+  }
+}
+@media (min-width: 920px) {
+  .device-wrap .right-content {
+    margin-top: 30px;  /* try 32px or 40px */
+    margin-left: 10px;
+  }
+}
